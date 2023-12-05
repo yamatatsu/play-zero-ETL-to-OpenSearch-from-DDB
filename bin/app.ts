@@ -1,7 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
 import * as trigger from "aws-cdk-lib/triggers";
 
 const app = new cdk.App();
@@ -45,6 +45,10 @@ reply.addGlobalSecondaryIndex({
 const triggerHandler = new NodejsFunction(stack, "TriggerHandler", {
   runtime: lambda.Runtime.NODEJS_20_X,
   architecture: lambda.Architecture.ARM_64,
+  bundling: {
+    target: "node20",
+    format: OutputFormat.ESM,
+  },
 });
 productCatalog.grantWriteData(triggerHandler);
 forum.grantWriteData(triggerHandler);
