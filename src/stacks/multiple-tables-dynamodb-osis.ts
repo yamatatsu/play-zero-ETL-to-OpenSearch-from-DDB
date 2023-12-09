@@ -7,20 +7,14 @@ import * as opensearch from "aws-cdk-lib/aws-opensearchservice";
 import * as osis from "aws-cdk-lib/aws-osis";
 
 type Props = cdk.StackProps & {
-  table: dynamodb.ITable;
+  tables: dynamodb.ITable[];
+  domain: opensearch.IDomain;
+  role: iam.IRole;
 };
-export class SimpleStack extends cdk.Stack {
+export class MultipleTablesDynamodbOsisStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
-    const { table } = props;
-
-    const domain = new opensearch.Domain(this, "Domain", {
-      version: opensearch.EngineVersion.OPENSEARCH_2_11,
-      capacity: {
-        multiAzWithStandbyEnabled: false,
-      },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
+    const { tables, domain, role } = props;
 
     /**
      * 既存のDynamoDB ItemsをOpenSearchに同期するためのS3バケット
@@ -33,91 +27,45 @@ export class SimpleStack extends cdk.Stack {
     });
 
     /**
-     * OSIS Pipeline用のIAM Role
+     * @see https://docs.aws.amazon.com/opensearch-service/latest/developerguide/configure-client-ddb.html#ddb-pipeline-role
      */
-    const pipelineRole = new iam.Role(this, "IngestionRole", {
-      assumedBy: new iam.ServicePrincipal("osis-pipelines.amazonaws.com", {
-        conditions: {
-          StringEquals: {
-            "aws:SourceAccount": this.account,
-          },
-          ArnLike: {
-            "aws:SourceArn": this.formatArn({
-              service: "osis",
-              resource: "pipeline",
-              resourceName: "*",
-            }),
-          },
-        },
-      }),
-      inlinePolicies: {
-        /**
-         * @see https://docs.aws.amazon.com/opensearch-service/latest/developerguide/pipeline-domain-access.html#pipeline-access-configure
-         */
-        ingestionPipeline: new iam.PolicyDocument({
-          statements: [
-            new iam.PolicyStatement({
-              actions: ["es:DescribeDomain"],
-              resources: [domain.domainArn],
-            }),
-            new iam.PolicyStatement({
-              actions: ["es:ESHttp*"],
-              resources: [`${domain.domainArn}/*`],
-            }),
-          ],
-        }),
-        /**
-         * @see https://docs.aws.amazon.com/opensearch-service/latest/developerguide/configure-client-ddb.html#ddb-pipeline-role
-         */
-        dynamodbIngestion: new iam.PolicyDocument({
-          statements: [
-            new iam.PolicyStatement({
-              sid: "allowRunExportJob",
-              actions: [
-                "dynamodb:DescribeTable",
-                "dynamodb:DescribeContinuousBackups",
-                "dynamodb:ExportTableToPointInTime",
-              ],
-              resources: [table.tableArn + ""],
-            }),
-            new iam.PolicyStatement({
-              sid: "allowCheckExportjob",
-              actions: ["dynamodb:DescribeExport"],
-              resources: [table.tableArn + "/export/*"],
-            }),
-            new iam.PolicyStatement({
-              sid: "allowReadFromStream",
-              actions: [
-                "dynamodb:DescribeStream",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
-              ],
-              resources: [table.tableArn + "/stream/*"],
-            }),
-            new iam.PolicyStatement({
-              sid: "allowReadAndWriteToS3ForExport",
-              actions: [
-                "s3:GetObject",
-                "s3:AbortMultipartUpload",
-                "s3:PutObject",
-                "s3:PutObjectAcl",
-              ],
-              resources: [bucket.bucketArn + "/*"],
-            }),
-          ],
-        }),
-      },
-    });
-
-    /**
-     * OSIS PipelineのためのOpenSearchドメインのリソースポリシー
-     * @see https://docs.aws.amazon.com/opensearch-service/latest/developerguide/pipeline-domain-access.html#pipeline-access-domain
-     */
-    domain.addAccessPolicies(
-      new iam.PolicyStatement({
-        principals: [pipelineRole],
-        actions: ["es:DescribeDomain", "es:ESHttp*"],
-        resources: [`${domain.domainArn}/*`],
+    role.attachInlinePolicy(
+      new iam.Policy(this, "Policy", {
+        statements: [
+          new iam.PolicyStatement({
+            sid: "allowRunExportJob",
+            actions: [
+              "dynamodb:DescribeTable",
+              "dynamodb:DescribeContinuousBackups",
+              "dynamodb:ExportTableToPointInTime",
+            ],
+            resources: tables.map((table) => table.tableArn + ""),
+          }),
+          new iam.PolicyStatement({
+            sid: "allowCheckExportjob",
+            actions: ["dynamodb:DescribeExport"],
+            resources: tables.map((table) => table.tableArn + "/export/*"),
+          }),
+          new iam.PolicyStatement({
+            sid: "allowReadFromStream",
+            actions: [
+              "dynamodb:DescribeStream",
+              "dynamodb:GetRecords",
+              "dynamodb:GetShardIterator",
+            ],
+            resources: tables.map((table) => table.tableArn + "/stream/*"),
+          }),
+          new iam.PolicyStatement({
+            sid: "allowReadAndWriteToS3ForExport",
+            actions: [
+              "s3:GetObject",
+              "s3:AbortMultipartUpload",
+              "s3:PutObject",
+              "s3:PutObjectAcl",
+            ],
+            resources: [bucket.bucketArn + "/*"],
+          }),
+        ],
       }),
     );
 
@@ -125,7 +73,7 @@ export class SimpleStack extends cdk.Stack {
      * OSIS Pipeline
      */
     new osis.CfnPipeline(this, "OSISPipeline", {
-      pipelineName: "simple-osis-pipeline",
+      pipelineName: "multiple-tables-dynamodb",
       minUnits: 1,
       maxUnits: 4,
       pipelineConfigurationBody: /* yaml */ `
@@ -135,7 +83,10 @@ export class SimpleStack extends cdk.Stack {
           source:
             dynamodb:
               acknowledgments: true
-              tables:
+              tables: ${tables
+                .map(
+                  (table) => /* yaml */ `
+
                 # REQUIRED: Supply the DynamoDB table ARN and whether export or stream processing is needed, or both
                 - table_arn: ${table.tableArn}
                   # Remove the stream block if only export is needed
@@ -148,10 +99,14 @@ export class SimpleStack extends cdk.Stack {
                     # Specify the region of the S3 bucket
                     s3_region: ${this.region}
                     # Optionally set the name of a prefix that DynamoDB export data files are written to in the bucket.
-                    s3_prefix: "table-index-1/"
+                    s3_prefix: multiple-table-${table.tableName}/
+
+                `,
+                )
+                .join("")}
               aws:
                 # REQUIRED: Provide the role to assume that has the necessary permissions to DynamoDB, OpenSearch, and S3.
-                sts_role_arn: ${pipelineRole.roleArn}
+                sts_role_arn: ${role.roleArn}
                 # Provide the region to use for aws credentials
                 region: ${this.region}
           sink:
@@ -159,7 +114,7 @@ export class SimpleStack extends cdk.Stack {
                 # REQUIRED: Provide an AWS OpenSearch endpoint
                 hosts:
                   - https://${domain.domainEndpoint}
-                index: table-index
+                index: multiple-tables-dynamodb-osis-index
                 index_type: custom
                 document_id: \${getMetadata("primary_key")}
                 action: \${getMetadata("opensearch_action")}
@@ -167,7 +122,7 @@ export class SimpleStack extends cdk.Stack {
                 document_version_type: external
                 aws:
                   # REQUIRED: Provide a Role ARN with access to the domain. This role should have a trust relationship with osis-pipelines.amazonaws.com
-                  sts_role_arn: ${pipelineRole.roleArn}
+                  sts_role_arn: ${role.roleArn}
                   # Provide the region of the domain.
                   region: ${this.region}
                   # Enable the 'serverless' flag if the sink is an Amazon OpenSearch Serverless collection

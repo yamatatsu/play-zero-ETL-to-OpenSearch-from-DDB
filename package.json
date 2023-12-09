@@ -1,7 +1,11 @@
 {
   "name": "play-zero-etl-to-open_search-from-ddb",
-  "scripts": {},
+  "scripts": {
+    "start": "npm run build -- -s -p",
+    "build": "marp ./slides --html"
+  },
   "devDependencies": {
+    "@marp-team/marp-cli": "^3.4.0",
     "@types/node": "20.9.1",
     "aws-cdk": "2.113.0",
     "esbuild": "^0.19.8",

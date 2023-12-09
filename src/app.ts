@@ -1,15 +1,33 @@
 import * as cdk from "aws-cdk-lib";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as s3 from "aws-cdk-lib/aws-s3";
-import * as opensearch from "aws-cdk-lib/aws-opensearchservice";
-import * as osis from "aws-cdk-lib/aws-osis";
 import { PrerequisiteStack } from "./stacks/prerequisite";
-import { SimpleStack } from "./stacks/simple";
+import { OpensearchDomainStack } from "./stacks/opensearch-domain";
+import { SimpleDynamodbOsisStack } from "./stacks/simple-dynamodb-osis";
+// import { MultipleTablesDynamodbOsisStack } from "./stacks/multiple-tables-dynamodb-osis";
 
 const app = new cdk.App();
 
 const tables = new PrerequisiteStack(app, "DynamoDB2OpenSearchPrerequisite");
+const domain = new OpensearchDomainStack(app, "DynamoDB2OpenSearchDomain");
 
-new SimpleStack(app, "DynamoDB2OpenSearchSimple", {
+new SimpleDynamodbOsisStack(app, "DynamoDB2OpenSearchSimple", {
   table: tables.productCatalogTable,
+  domain: domain.opensearchDomain,
+  role: domain.ingestionPipelineRole,
 });
+
+/**
+ * This stack cannot deploy because of the following error:
+ *
+ * > Exactly one DynamoDB table is required for Amazon OpenSearch Ingestion pipelines using a dynamodb source: "$['dynamodb-pipeline']['source']['dynamodb']"
+ */
+//
+// new MultipleTablesDynamodbOsisStack(app, "DynamoDB2OpenSearchMultipleTable", {
+//   tables: [
+//     tables.productCatalogTable,
+//     tables.forumTable,
+//     tables.replyTable,
+//     tables.threadTable,
+//   ],
+//   domain: domain.opensearchDomain,
+//   role: domain.ingestionPipelineRole,
+// });
