@@ -14,6 +14,7 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
+    "@aws-cdk/aws-cognito-identitypool-alpha": "2.113.0-alpha.0",
     "@aws-sdk/client-dynamodb": "^3.465.0",
     "aws-cdk-lib": "2.113.0",
     "constructs": "^10.0.0"

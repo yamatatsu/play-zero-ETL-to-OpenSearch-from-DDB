@@ -202,6 +202,8 @@ export const handler = async () => {
             Item: {
               Id: { S: "Amazon DynamoDB#DynamoDB Thread 1" },
               ReplyDateTime: { S: "2015-09-15T19:58:22.947Z" },
+              ForumName: { S: "Amazon DynamoDB" },
+              ThreadSubject: { S: "DynamoDB Thread 1" },
               Message: { S: "DynamoDB Thread 1 Reply 1 text" },
               PostedBy: { S: "User A" },
             },
@@ -212,6 +214,8 @@ export const handler = async () => {
             Item: {
               Id: { S: "Amazon DynamoDB#DynamoDB Thread 1" },
               ReplyDateTime: { S: "2015-09-22T19:58:22.947Z" },
+              ForumName: { S: "Amazon DynamoDB" },
+              ThreadSubject: { S: "DynamoDB Thread 1" },
               Message: { S: "DynamoDB Thread 1 Reply 2 text" },
               PostedBy: { S: "User B" },
             },
@@ -222,6 +226,8 @@ export const handler = async () => {
             Item: {
               Id: { S: "Amazon DynamoDB#DynamoDB Thread 2" },
               ReplyDateTime: { S: "2015-09-29T19:58:22.947Z" },
+              ForumName: { S: "Amazon DynamoDB" },
+              ThreadSubject: { S: "DynamoDB Thread 2" },
               Message: { S: "DynamoDB Thread 2 Reply 1 text" },
               PostedBy: { S: "User A" },
             },
@@ -232,6 +238,8 @@ export const handler = async () => {
             Item: {
               Id: { S: "Amazon DynamoDB#DynamoDB Thread 2" },
               ReplyDateTime: { S: "2015-10-05T19:58:22.947Z" },
+              ForumName: { S: "Amazon DynamoDB" },
+              ThreadSubject: { S: "DynamoDB Thread 2" },
               Message: { S: "DynamoDB Thread 2 Reply 2 text" },
               PostedBy: { S: "User A" },
             },

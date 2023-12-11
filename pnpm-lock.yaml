@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@aws-cdk/aws-cognito-identitypool-alpha':
+    specifier: 2.113.0-alpha.0
+    version: 2.113.0-alpha.0(aws-cdk-lib@2.113.0)(constructs@10.3.0)
   '@aws-sdk/client-dynamodb':
     specifier: ^3.465.0
     version: 3.465.0
@@ -50,6 +53,17 @@ packages:
 
   /@aws-cdk/asset-node-proxy-agent-v6@2.0.1:
     resolution: {integrity: sha512-DDt4SLdLOwWCjGtltH4VCST7hpOI5DzieuhGZsBpZ+AgJdSI2GCjklCXm0GCTwJG/SolkL5dtQXyUKgg9luBDg==}
+    dev: false
+
+  /@aws-cdk/aws-cognito-identitypool-alpha@2.113.0-alpha.0(aws-cdk-lib@2.113.0)(constructs@10.3.0):
+    resolution: {integrity: sha512-R+m1RGo35U5iumoeaXBIblLtYya85NfcySQ2a6av52Dj0cuWNgP3Zhfy5KpOuSLymU3V8MBMRrhoEUxj8b0G2g==}
+    engines: {node: '>= 14.15.0'}
+    peerDependencies:
+      aws-cdk-lib: ^2.113.0
+      constructs: ^10.0.0
+    dependencies:
+      aws-cdk-lib: 2.113.0(constructs@10.3.0)
+      constructs: 10.3.0
     dev: false
 
   /@aws-crypto/crc32@3.0.0:
