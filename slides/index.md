@@ -74,42 +74,49 @@ DevelopersIOブログ
 
 ---
 
-それで何が幸せなの？
+それで何が幸せなの？🤔
 
 ---
 
-DynamoDBの検索性を補うために、OpenSearch Serviceを使うパターンは以前から知られていた
+DynamoDBの検索性を補うために、OpenSearch Serviceを使うパターンが簡単になる
 
 <iframe class="hatenablogcard" style="width:100%;height:155px;max-width:680px;" title="Indexing Amazon DynamoDB Content with Amazon Elasticsearch Service Using AWS Lambda | AWS Compute Blog" src="https://hatenablog-parts.com/embed?url=https://aws.amazon.com/jp/blogs/compute/indexing-amazon-dynamodb-content-with-amazon-elasticsearch-service-using-aws-lambda/" width="300" height="150" frameborder="0" scrolling="no"></iframe>
 
 ---
 
-では、DynammoDBでは何ができなくて、OpenSearch Serviceでは何ができるのか？🤔
+OpenSearch Serviceでは何ができるのか？🤔
 
 ---
 
-OpenSearch Serviceでできること
+- すべてのフィールドを検索対象にできる
+- 全文検索
+- SQL(joinもつかえる)
+- データの集計（移動平均、累積など）
+- アラート設定
+- 異常検知
 
 ---
 
-SQL(joinもつかえる)✨
+気になるお値段 💰
 
 ---
 
-```SQL
-POST _plugins/_sql
-{
-  "query": "SELECT * FROM forum INNER JOIN thread ON forum.Name = thread.ForumName"
-}
-```
+2023/12/11時点
+
+![Alt text](image-2.png)
 
 ---
 
-```SQL
-POST _plugins/_sql
-{
-  "query": "SELECT * FROM forum INNER JOIN thread ON forum.Name = thread.ForumName INNER JOIN reply ON thread.Subject = reply.ThreadSubject"
-}
-```
+OCU消費
+
+![Alt text](image-1.png)
 
 ---
+
+S3からのzero-ETLも気になる。。。
+
+<iframe class="hatenablogcard" style="width:100%;height:155px;max-width:680px;" title="Amazon OpenSearch Service の Amazon S3 とのゼロ ETL 統合 (プレビュー) を発表 | AWS ニュースブログ" src="https://hatenablog-parts.com/embed?url=https://aws.amazon.com/jp/blogs/aws/amazon-opensearch-service-zero-etl-integration-with-amazon-s3-preview/" width="300" height="150" frameborder="0" scrolling="no"></iframe>
+
+---
+
+ご清聴ありがとうございました🙇‍♂️
