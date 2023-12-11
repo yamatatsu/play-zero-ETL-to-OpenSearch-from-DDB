@@ -94,6 +94,7 @@ OpenSearch Serviceでは何ができるのか？🤔
 - データの集計（移動平均、累積など）
 - アラート設定
 - 異常検知
+- Vector Search
 
 ---
 
@@ -116,6 +117,10 @@ OCU消費
 S3からのzero-ETLも気になる。。。
 
 <iframe class="hatenablogcard" style="width:100%;height:155px;max-width:680px;" title="Amazon OpenSearch Service の Amazon S3 とのゼロ ETL 統合 (プレビュー) を発表 | AWS ニュースブログ" src="https://hatenablog-parts.com/embed?url=https://aws.amazon.com/jp/blogs/aws/amazon-opensearch-service-zero-etl-integration-with-amazon-s3-preview/" width="300" height="150" frameborder="0" scrolling="no"></iframe>
+
+---
+
+DynamoDBのvector searchも気になる。
 
 ---
 
