@@ -14,7 +14,7 @@ export class OpensearchDomainStack extends cdk.Stack {
     super(scope, id, props);
 
     const userPool = new cognito.UserPool(this, "UserPool", {
-      // userPoolName: "open-search-dashboard-user-pool",
+      userPoolName: "open-search-dashboard-user-pool",
       selfSignUpEnabled: false,
       signInAliases: { email: true },
       autoVerify: { email: true },
@@ -33,12 +33,12 @@ export class OpensearchDomainStack extends cdk.Stack {
     new cognito.UserPoolDomain(this, "UserPoolDomain", {
       userPool,
       cognitoDomain: {
-        domainPrefix: "yamatatsu-opensearch-playground",
+        domainPrefix: "yamatatsu-opensearch-dashboard",
       },
     });
 
     const idPool = new cognitoIdp.IdentityPool(this, "IdentityPool", {
-      // identityPoolName: "open-search-dashboard-idp",
+      identityPoolName: "open-search-dashboard-idp",
       allowUnauthenticatedIdentities: true,
       authenticationProviders: {
         userPools: [
