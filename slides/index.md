@@ -35,9 +35,8 @@ style: |
 
 <dev style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
   <img
-    src="./yamatatsu.png"
-    height="180"
-    width="180"
+    src="./IMG_1587.jpg"
+    width="200"
   />
   <ul style="list-style-type: none; line-height: 1.4">
     <li style="font-size: 56px; font-weight: 700;">山本達也（やまたつ）</li>
